@@ -1,2 +1,4 @@
 *.pyc
 *.npz
+training_set/
+**/__pycache__
