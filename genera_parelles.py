@@ -30,6 +30,15 @@ class GeneradorParelles:
         self.dades.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
         self.visualitzador.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
 
+        # Generate the menu
+        bmenu = tk.Menu(self.master)
+        filemenu = tk.Menu(bmenu)
+        filemenu.add_command(label="Load configuration", command=self.loadconfig)
+        filemenu.add_command(label="Save configuration", command=self.saveconfig)
+        bmenu.add_cascade(label="File", menu=filemenu)
+
+        self.master.config(menu=bmenu)
+
         # Generate test field and plot it
         self.act_mostra()
 
@@ -91,6 +100,12 @@ class GeneradorParelles:
         else:
             self.dades.stop_progress()
             self.process.join()
+
+    def loadconfig(self, event=None):
+        ...
+
+    def saveconfig(self, event=None):
+        ...
 
 
 if __name__ == "__main__":
