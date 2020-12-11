@@ -74,7 +74,7 @@ class GeneradorParelles:
         self.P = pr.crea_pupila(npix, r_pupil, z_coeffs)
         #self.P[:] = afegeix_bruticia(self.P, 16, niter=bruticia)
         H1, H2, H3, t_lens = pr.propagadors(npix)
-        self.E_out = pr.propaga_os(self.E_in, self.P, t_lens, H1, H2)
+        self.E_out = pr.propaga_os(self.E_in, self.P, t_lens, H3)
 
         # Calculate intensities and plot
         I = pr.captura_intensitat(self.E_out, dades["lam"], dades["sigma"])

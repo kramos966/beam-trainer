@@ -76,6 +76,12 @@ def propagadors(npix):
 def propaga_os(E, P, t_lens, *tf):
     """Propagate the field E through an optical system using the
     varyadic list of tf of transfer functions."""
+    if len(tf) == 1:
+        # Propagate to intermediate plane
+        # TODO: Include backpropagation to add noise
+        H = tf[0]
+        E_in = E*P
+        return fftshift(fft2(E_in)) 
     if len(tf) == 2:
         H1, H2 = tf
         E_p = propaga_h(E, H1)
@@ -125,10 +131,11 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
             P_ab = P
 
         # Compute the final field
-        if z > 0:
-            E_out = propaga_os(E_in, P, t_lens, H1, H2, H3)
-        else:
-            E_out = propaga_os(E_in, P, t_lens, H1, H2)
+        #if z > 0:
+        #    E_out = propaga_os(E_in, P, t_lens, H1, H2, H3)
+        #else:
+        #    E_out = propaga_os(E_in, P, t_lens, H1, H2)
+        E_out = propaga_os(E_in, P, t_lens, H3)
         phi_out = np.angle(E_out)
         I_out = captura_intensitat(E_out, max_photons, sigma)
 
