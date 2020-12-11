@@ -24,33 +24,37 @@ the actual final rendering of the program**. These previsualizations
 are the shape of the input beam, a sample of the final intensity recorded
 and the real part of the pupil of the system.
 
+All of the input properties may be saved and loaded again using
+the `File` dropdown in the menu bar.
+
 ## Beam data layout
 
 In order, the controls are as follows:
 
 1. **Lateral resolution**: Lateral number of pixels of the final images.
 Without loss of generality, the final images are squared.
-2. **Beam radius**: Radius of the beam as a fraction of the input window
-length.
+2. **Beam radius**: Maximum value of the radius of the beam as a fraction of
+the input window length. *Varies randomly when computing the set*.
 3. **Pupil radius**: Radius of the pupil of the lens as a fraction of the pupil
-window.
+window. *Remains fixed when computing the set*.
 4. **Max photons per pixel**: Number of photons corresponding to the maximum
 value of the output intensity. This number plays a role in photon detection,
 where it serves as the $\lambda$ parameter for the Poisson distribution.
+*Remains fixed when computing the set*.
 5. **Std dark noise**: Standard deviation of the intenity recorded by the
-camera pixels under dark conditions.
+camera pixels under dark conditions. *Remains fixed when computing the set*.
 6. **Number of images**: Total number of intensity-phase pairs.
 7. **Relative phase error**: Standard deviation of the noise added to the
-phase of the input beam.
+phase of the input beam. *Remains fixed when computing the set*.
 8. **Vortex order**: Order $m$ of the optional vortex phase on the input beam,
-$E_{in} = A\exp(im\phi)$.
+$E_{in} = A\exp(im\phi)$. *Varies randomly when computing the set*.
 9. **Relative misalign**: Relative misalignement of both vortex and cosine
 amplitude modulations (v.i.).
 10. **Cosine order**: Order $k$ of the cosine amplitude modulation on the input beam,
-$E_{in} = A\cos(k\phi)$.
+$E_{in} = A\cos(l\phi)$. *Varies randomly when computing the set*.
 
-All of these values are used in the process of pair formation as the maximum
-value of a random process, (e.g. `r_{iter} = r*random()`).
+All of the indicated variable values take the input value as the maximum
+of a random process, (e.g. `r_{iter} = r*random()`).
 
 ## Zernike coefficients layout
 
@@ -132,8 +136,11 @@ $\lambda$ parameter for the brightest pixel of the camera.
 
 # Output data
 
-The resulting pairs are saved as `*.npz` files inside a folder named `trainint_set`
-inside the working directory of the script. The data is saved with the keys
+The resulting pairs are saved as `*.npz` files inside a user selected folder.
+The file dialog asks for a folder name, which **need not exist**. At the
+same time, a JSON file containing the values used to generate the set is
+saved inside the directory, with the key `conf_yyyymmddhhmm.json`.
+The data is saved with the keys
 `intensity` and `phase`. To access the generated data,
 the function `load` from `numpy` must be used, which returns a dictionary
 with the keys defined earlier. To retrieve the data, an example script
