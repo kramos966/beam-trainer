@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
-import matplotlib.pyplot as plt
 from zernike_p import zernike_p, get_zernike_index
 import os
 fft2 = np.fft.fft2
@@ -130,8 +129,6 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
             E_out = propaga_os(E_in, P, t_lens, H1, H2, H3)
         else:
             E_out = propaga_os(E_in, P, t_lens, H1, H2)
-        plt.imshow(abs(E_out))
-        plt.show()
         phi_out = np.angle(E_out)
         I_out = captura_intensitat(E_out, max_photons, sigma)
 
