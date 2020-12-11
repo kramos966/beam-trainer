@@ -4,13 +4,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
+import tkinter.filedialog as filedialog
 import tkinter.ttk as ttk
 import multiprocessing as mp
-from PIL import Image, ImageTk
-from zernike_p import zernike_p, get_zernike_index
+import json
 import imageio
+import os
+import time
+from PIL import Image, ImageTk
 
 # Import custom widgets and functions
+from zernike_p import zernike_p, get_zernike_index
 from widgets import PanellDades, Visualitzador
 import prop_funs as pr
 
@@ -71,19 +75,31 @@ class GeneradorParelles:
         self.visualitzador.imshow(2, np.real(self.P))
 
     def calcula_series(self, event=None):
+        # Select save folder
+        foldname = filedialog.askdirectory(title="Select save directory")
+        pr.folder = foldname
+        try:
+            os.mkdir(foldname)
+        except:
+            pass
+        # Dump configuration to the folder
+        t = time.localtime()
+        name = f"conf_{t[0]}{t[1]}{t[2]}{t[3]}{t[4]}.json"
+        path = os.path.join(foldname, name)
+        self.saveconfig(name=path)
         # Obtain important data
         dades = self.dades.get_beam()
         z_coeffs = self.dades.get_zernikes()
-        npix = int(dades[0])
-        r = dades[1]
-        r_pupil = dades[2]
-        max_photons = dades[3]
-        sigma = dades[4]
-        nimatges = int(dades[5])
-        phase_error = dades[6]
-        m = int(dades[7])
-        misalign = dades[8]
-        cos_order = int(dades[9])
+        npix = int(dades["npix"])
+        r = dades["r"]
+        r_pupil = dades["r_pupil"]
+        max_photons = dades["lam"]
+        sigma = dades["sigma"]
+        nimatges = int(dades["nim"])
+        phase_error = dades["std_phase"]
+        m = int(dades["m"])
+        misalign = dades["miss"]
+        cos_order = int(dades["l"])
 
         # Call process
         self.process = mp.Process(target=pr.calcula_imatges, args=(npix, r, r_pupil, 
@@ -101,12 +117,32 @@ class GeneradorParelles:
             self.dades.stop_progress()
             self.process.join()
 
-    def loadconfig(self, event=None):
-        ...
+    def loadconfig(self, event=None, ask=False, name=None):
+        # Ask file
+        if ask:
+            name = filedialog.askopenfilename(title="Load configuration file",
+                    filetypes=(("JSON", "*.json"), ("All", "*.*")))
+        with open(name, "r") as openfile:
+            joint_dict = json.load(openfile, parse_int=True)
 
-    def saveconfig(self, event=None):
-        ...
+        # Reflect the loaded values in each entry
+        self.dades.update_values(joint_dict)
 
+    def saveconfig(self, event=None, ask=False, name=None):
+        """Save current values of the configuration into a JSON file."""
+        joint_dict = dict()
+        zernikes = self.dades.get_zernikes()
+        dades = self.dades.get_beam()
+        joint_dict["beam_data"] = dades
+        joint_dict["zernikes"] = zernikes
+        # Save finally the joint dictionary
+        if ask:
+            name = filedialog.asksaveasfilename(title="Save configuration file",
+                    filetypes=(("JSON", "*.json"), ("All", "*.*")))
+        if not name.endswith(".json"):
+            name = f"{name}.json"
+        with open(name, "w") as savefile:
+            json.dump(joint_dict, savefile, sort_keys=True, indent=4)
 
 if __name__ == "__main__":
     root = tk.Tk()

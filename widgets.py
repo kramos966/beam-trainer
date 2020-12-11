@@ -36,6 +36,13 @@ class PanellDades(ttk.Notebook):
     def stop_progress(self):
         self.beam_data.stop_progress()
 
+    def update_values(self, update_dict):
+        """Update the values inside each entry with the ones inside update_dict"""
+        zernikes = update_dict["zernikes"]
+        beam_data = update_dict["beam_data"]
+        self.beam_data.update_entries(beam_data)
+        self.zernike_data.update_entries(zernikes)
+
 class EntradesZernike(tk.Frame):
     def __init__(self, master):
         self.master = master
@@ -61,6 +68,13 @@ class EntradesZernike(tk.Frame):
             if val > 0:
                 val_dict[key] = val
         return val_dict
+
+    def update_entries(self, entry_dict):
+        keys = entry_dict.keys()
+        for key in keys:
+            entry = self.entries[int(key)]
+            entry.delete(0, tk.END)
+            entry.insert(0, entry_dict[key])
 
 class EntradesFeix(tk.Frame):
     def __init__(self, master, command=None):
@@ -136,6 +150,13 @@ class EntradesFeix(tk.Frame):
     def stop_progress(self):
         self.progress.stop()
 
+    def update_entries(self, entry_dict):
+        keys = entry_dict.keys()
+        for key in keys:
+            entry = self.entries[key]
+            entry.delete(0, tk.END)
+            entry.insert(0, entry_dict[key])
+
 class myEntry(tk.Frame):
     def __init__(self, master, text="", default="0.5", width=None):
         self.master = master
@@ -152,6 +173,12 @@ class myEntry(tk.Frame):
 
     def get(self):
         return self.entry.get()
+
+    def delete(self, begin, end):
+        self.entry.delete(begin, end)
+
+    def insert(self, begin, string):
+        self.entry.insert(begin, string)
 
 class Plotter(tk.Canvas):
     def __init__(self, master, width=256, height=256):

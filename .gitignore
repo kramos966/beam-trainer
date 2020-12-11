@@ -2,3 +2,4 @@
 *.npz
 training_set/
 **/__pycache__
+*.json

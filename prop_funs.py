@@ -55,11 +55,8 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
 
     P, rho, phi = crea_pupila(npix, r, work=True)
     # Get only the aberrations with non zero max coefficient
-    zernikes = []
-    for i, coeff in enumerate(aberracions):
-        if coeff != 0.0:
-            zernikes.append((osa_indexs[i+1], coeff))
-
+    if aberracions:
+        coeff_num = aberracions.keys()
     W = np.zeros((npix, npix), dtype=np.float_)
     for i in range(nimatges):
         r_i = np.random.rand()*r
@@ -67,11 +64,12 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
         E_in = crea_camp(npix, r_i, m, misalign=misalign, k_noise=phase_error,
                 cos_order=order)
         # Compute random wavefront aberration
-        if zernikes:
+        if aberracions:
             W[:] = 0
-            for k in range(len(zernikes)):
+            for n_coeff in coeff_num:
                 # Maximum amplitude of the coefficient multiplied by the polynomial
-                (n, m), A = zernikes[k]
+                A = aberracions[n_coeff]
+                (n, m) = osa_indexs[n_coeff]
                 W[:] += A*np.random.rand()*\
                         zernike_p(rho, phi, n, m)
             P_ab = P*np.exp(1j*k*W)
