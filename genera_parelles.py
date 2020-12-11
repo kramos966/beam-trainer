@@ -84,9 +84,9 @@ class GeneradorParelles:
             pass
         # Dump configuration to the folder
         t = time.localtime()
-        name = f"conf_{t[0]}{t[1]}{t[2]}{t[3]}{t[4]}.json"
+        name = f"conf_{t[0]}{t[1]:02d}{t[2]:02d}{t[3]:02d}{t[4]:02d}.json"
         path = os.path.join(foldname, name)
-        self.saveconfig(name=path)
+        self.saveconfig(ask=False, name=path)
         # Obtain important data
         dades = self.dades.get_beam()
         z_coeffs = self.dades.get_zernikes()
@@ -117,18 +117,20 @@ class GeneradorParelles:
             self.dades.stop_progress()
             self.process.join()
 
-    def loadconfig(self, event=None, ask=False, name=None):
+    def loadconfig(self, event=None, ask=True, name=None):
         # Ask file
         if ask:
             name = filedialog.askopenfilename(title="Load configuration file",
                     filetypes=(("JSON", "*.json"), ("All", "*.*")))
+            if not name:
+                return
         with open(name, "r") as openfile:
             joint_dict = json.load(openfile, parse_int=True)
 
         # Reflect the loaded values in each entry
         self.dades.update_values(joint_dict)
 
-    def saveconfig(self, event=None, ask=False, name=None):
+    def saveconfig(self, event=None, ask=True, name=None):
         """Save current values of the configuration into a JSON file."""
         joint_dict = dict()
         zernikes = self.dades.get_zernikes()
@@ -139,6 +141,8 @@ class GeneradorParelles:
         if ask:
             name = filedialog.asksaveasfilename(title="Save configuration file",
                     filetypes=(("JSON", "*.json"), ("All", "*.*")))
+            if not name:
+                return
         if not name.endswith(".json"):
             name = f"{name}.json"
         with open(name, "w") as savefile:
