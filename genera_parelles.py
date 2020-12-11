@@ -17,7 +17,7 @@ from PIL import Image, ImageTk
 from zernike_p import zernike_p, get_zernike_index
 from widgets import PanellDades, Visualitzador
 import prop_funs as pr
-
+fftshift = np.fft.fftshift
 
 k = 2*np.pi
 
@@ -63,9 +63,11 @@ class GeneradorParelles:
         # Create input and output fields
         self.E_in = pr.crea_camp(npix, r, m, k_noise=phase_error, misalign=misalign,
                 cos_order=cos_order)
+        self.E_in[:] = pr.afegeix_bruticia(self.E_in, 1, niter=10)
         self.P = pr.crea_pupila(npix, r_pupil, z_coeffs)
         #self.P[:] = afegeix_bruticia(self.P, 16, niter=bruticia)
-        self.E_out = pr.convoluciona(self.E_in, self.P)
+        H1, H2, H3, t_lens = pr.propagadors(npix)
+        self.E_out = pr.propaga_os(self.E_in, self.P, t_lens, H1, H2)
 
         # Calculate intensities and plot
         I = pr.captura_intensitat(self.E_out, dades["lam"], dades["sigma"])

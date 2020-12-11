@@ -92,16 +92,16 @@ class EntradesFeix(tk.Frame):
         entry_r.pack(anchor=tk.W)
         self.entries["r"] = entry_r
 
-        entry_pup = myEntry(self, text="Pupil radius", default="0.05", width=8)
+        entry_pup = myEntry(self, text="Pupil radius", default="0.5", width=8)
         entry_pup.pack(anchor=tk.W)
         self.entries["r_pupil"] = entry_pup
 
-        entry_np = myEntry(self, text="Max photons per pixel", default="500", 
+        entry_np = myEntry(self, text="Max photons per pixel", default="200", 
                 width=8)
         entry_np.pack(anchor=tk.W)
         self.entries["lam"] = entry_np
         
-        entry_dn = myEntry(self, text="Std dark noise", default="20",
+        entry_dn = myEntry(self, text="Std dark noise", default="10",
                 width=8)
         entry_dn.pack(anchor=tk.W)
         self.entries["sigma"] = entry_dn
