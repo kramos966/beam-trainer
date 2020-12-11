@@ -49,9 +49,13 @@ class GeneradorParelles:
         self.master.bind("<Return>", self.act_mostra)
 
     def act_mostra(self, event=None):
-        dades = self.dades.get_beam()
-        z_coeffs = self.dades.get_zernikes()
-        #npix = int(dades[0])
+        # Get data and unpack
+        dump = self.dades.get_data()
+        dades = dump["beam_data"]
+        z_coeffs = dump["zernikes"]
+        geometry_data = dump["geometry_data"]
+
+        # Beam data
         npix = 512      # Fix, nomes es camp de mostra!
         r = dades["r"]
         r_pupil = dades["r_pupil"]
@@ -59,6 +63,9 @@ class GeneradorParelles:
         m = int(dades["m"])    # Vortex order
         misalign = dades["miss"]
         cos_order = int(dades["l"])
+
+        # Geometry data
+        pr.set_constants(geometry_data)
         
         # Create input and output fields
         self.E_in = pr.crea_camp(npix, r, m, k_noise=phase_error, misalign=misalign,
@@ -90,8 +97,9 @@ class GeneradorParelles:
         path = os.path.join(foldname, name)
         self.saveconfig(ask=False, name=path)
         # Obtain important data
-        dades = self.dades.get_beam()
-        z_coeffs = self.dades.get_zernikes()
+        dump = self.dades.get_data()
+        dades = dump["beam_data"]
+        z_coeffs = dump["zernikes"]
         npix = int(dades["npix"])
         r = dades["r"]
         r_pupil = dades["r_pupil"]

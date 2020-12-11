@@ -20,15 +20,20 @@ class PanellDades(ttk.Notebook):
         self.beam_data = EntradesFeix(self.master, command=command)
         self.add(self.beam_data, text="Beam data")
 
+        # Geometry data
+        self.geometry_data = EntradesGeometria(self.master)
+        self.add(self.geometry_data, text="Geometry")
+
         # Zernike data
         self.zernike_data = EntradesZernike(self.master)
         self.add(self.zernike_data, text="Zernike coeffs")
 
-    def get_beam(self):
-        return self.beam_data.dump()
-
-    def get_zernikes(self):
-        return self.zernike_data.dump()
+    def get_data(self):
+        dump = dict()
+        dump["beam_data"] = self.beam_data.dump()
+        dump["zernikes"] = self.zernike_data.dump()
+        dump["geometry_data"] = self.geometry_data.dump()
+        return dump
 
     def start_progress(self):
         self.beam_data.start_progress()
@@ -43,6 +48,44 @@ class PanellDades(ttk.Notebook):
         self.beam_data.update_entries(beam_data)
         self.zernike_data.update_entries(zernikes)
 
+class EntradesGeometria(tk.Frame):
+    def __init__(self, master):
+        self.master = master
+        tk.Frame.__init__(self, master)
+
+        # Entries
+        self.entries = dict()
+        entry_focal = myEntry(self, text="Focal length", default="100", width=8)
+        entry_focal.pack(anchor=tk.W)
+        self.entries["focal"] = entry_focal
+
+        entry_halfl = myEntry(self, text="Half window length", default="2", width=8)
+        entry_halfl.pack(anchor=tk.W)
+        self.entries["length"] = entry_halfl
+
+        entry_lamb = myEntry(self, text="Wavelength", default="525e-6", width=8)
+        entry_lamb.pack(anchor=tk.W)
+        self.entries["lamb"] = entry_lamb
+
+        entry_z = myEntry(self, text="Position intermediate plane", default="0", width=8)
+        entry_z.pack(anchor=tk.W)
+        self.entries["z"] = entry_z
+
+    def dump(self):
+        keys = self.entries.keys()
+        val_dict = dict()
+        for key in keys:
+            val = float(self.entries[key].get())
+            val_dict[key] = val
+        return val_dict
+
+    def update_entries(self, entry_dict):
+        keys = entry_dict.keys()
+        for key in keys:
+            entry = self.entries[int(key)]
+            entry.delete(0, tk.END)
+            entry.insert(0, entry_dict[key])
+
 class EntradesZernike(tk.Frame):
     def __init__(self, master):
         self.master = master
@@ -56,7 +99,7 @@ class EntradesZernike(tk.Frame):
             for j in range(ncol):
                 num = i*ncol+j+1
                 e = myEntry(self, text=str(num), default="0.0", width=8)
-                e.grid(row=i, column=j)
+                e.grid(row=i, column=j, ipadx=20)
                 self.entries[num] = e
 
     def dump(self):

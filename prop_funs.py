@@ -195,3 +195,11 @@ def captura_intensitat(E, mean_photon, std_dark):
     I_poiss = np.random.poisson(lam=I, size=E.shape)
 
     return I+I_poiss+np.abs(dark_noise)
+
+def set_constants(data_dict):
+    # FIXME: DIRTY HACK
+    global lamb, L, f, z
+    lamb = data_dict["lamb"]
+    L = data_dict["length"]/lamb
+    f = data_dict["focal"]/lamb
+    z = data_dict["z"]/lamb
