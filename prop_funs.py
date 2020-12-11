@@ -121,10 +121,10 @@ def crea_pupila(npix, r, aberrations=None, work=False):
         rhomax = rho[mask].max()
         rho[:] = mask*rho/rhomax    # Radi normalitzat!
         W = np.zeros((npix, npix), dtype=np.float_)
-        for i, coeff in enumerate(aberrations):
-            if coeff != 0.0:    # Calcula si es necessari
-                indexs = osa_indexs[i+1]
-                W[:] += coeff*zernike_p(rho, phi, *indexs)
+        for coeff_num in aberrations:
+            indexs = osa_indexs[coeff_num]
+            coeff = aberrations[coeff_num]
+            W[:] += coeff*zernike_p(rho, phi, *indexs)
         P[:] *= np.exp(1j*k*W)
 
     #P[:] = np.fft.fftshift(P)

@@ -44,15 +44,23 @@ class EntradesZernike(tk.Frame):
         # Generate the Zernike polynomial entries based on OSA convention
         nrow = 7
         ncol = 2
-        self.entries = []
+        self.entries = dict()
         for i in range(nrow):
             for j in range(ncol):
-                e = myEntry(self, text=f"{i*ncol+j+1}", default="0.0", width=8)
+                num = i*ncol+j+1
+                e = myEntry(self, text=str(num), default="0.0", width=8)
                 e.grid(row=i, column=j)
-                self.entries.append(e)
+                self.entries[num] = e
 
     def dump(self):
-        return [float(coeff.get()) for coeff in self.entries]
+        """Dump only the zernike coefficients with non zero value"""
+        keys = self.entries.keys()
+        val_dict = dict()
+        for key in keys:
+            val = float(self.entries[key].get())
+            if val > 0:
+                val_dict[key] = val
+        return val_dict
 
 class EntradesFeix(tk.Frame):
     def __init__(self, master, command=None):
@@ -60,60 +68,54 @@ class EntradesFeix(tk.Frame):
         tk.Frame.__init__(self, master)
 
         # Generate the entries for the parameters of the beam
-        self.entries = []
+        self.entries = dict()   # Empty dictionary to save each config
         entry_pix = myEntry(self, text="Lateral resolution", default="256",
                 width=8)
         entry_pix.pack(anchor=tk.W)
-        self.entries.append(entry_pix)
+        self.entries["npix"] = entry_pix
 
         entry_r = myEntry(self, text="Beam Radius", default="0.05", width=8)
         entry_r.pack(anchor=tk.W)
-        self.entries.append(entry_r)
+        self.entries["r"] = entry_r
 
         entry_pup = myEntry(self, text="Pupil radius", default="0.05", width=8)
         entry_pup.pack(anchor=tk.W)
-        self.entries.append(entry_pup)
+        self.entries["r_pupil"] = entry_pup
 
         entry_np = myEntry(self, text="Max photons per pixel", default="500", 
                 width=8)
         entry_np.pack(anchor=tk.W)
-        self.entries.append(entry_np)
+        self.entries["lam"] = entry_np
         
         entry_dn = myEntry(self, text="Std dark noise", default="20",
                 width=8)
         entry_dn.pack(anchor=tk.W)
-        self.entries.append(entry_dn)
+        self.entries["sigma"] = entry_dn
 
         entry_nim = myEntry(self, text="Number of images", default="100",
                 width=8)
         entry_nim.pack(anchor=tk.W)
-        self.entries.append(entry_nim)
-
-        # Buttons and checks for the final image calculations
-        #self.check_xy = tk.Checkbutton(self, text="Alternate radial images")
-        #self.check_xy.pack(anchor=tk.W)
-        #self.check_rab = tk.Checkbutton(self, text="Random Zernike coeff")
-        #self.check_rab.pack(anchor=tk.W)
+        self.entries["nim"] = entry_nim
 
         entry_an = myEntry(self, text="Relative phase error", default="0.0",
                 width=8)
         entry_an.pack(anchor=tk.W)
-        self.entries.append(entry_an)
+        self.entries["std_phase"] = entry_an
 
         entry_ord = myEntry(self, text="Vortex order", default="0",
                 width=8)
         entry_ord.pack(anchor=tk.W)
-        self.entries.append(entry_ord)
+        self.entries["m"] = entry_ord
 
         entry_mis = myEntry(self, text="Relative Vortex misalign", default="0",
                 width=8)
         entry_mis.pack(anchor=tk.W)
-        self.entries.append(entry_mis)
+        self.entries["miss"] = entry_mis
 
         entry_sp = myEntry(self, text="Cosine order", default="0",
                 width=8)
         entry_sp.pack(anchor=tk.W)
-        self.entries.append(entry_sp)
+        self.entries["l"] = entry_sp
 
         self.commence = ttk.Button(self, text="Start computation", command=command)
         self.commence.pack(anchor=tk.W)
@@ -122,7 +124,11 @@ class EntradesFeix(tk.Frame):
         self.progress.pack(anchor=tk.W)
 
     def dump(self):
-        return [float(x.get()) for x in self.entries]
+        """Generate a dictionary containing the values of the entries."""
+        val_dict = dict()
+        for key in self.entries.keys():
+            val_dict[key] = float(self.entries[key].get())
+        return val_dict
     
     def start_progress(self):
         self.progress.start(16)

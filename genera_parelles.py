@@ -49,12 +49,12 @@ class GeneradorParelles:
         z_coeffs = self.dades.get_zernikes()
         #npix = int(dades[0])
         npix = 512      # Fix, nomes es camp de mostra!
-        r = dades[1]
-        r_pupil = dades[2]
-        phase_error = dades[6]
-        m = int(dades[7])    # Vortex order
-        misalign = dades[8]
-        cos_order = int(dades[9])
+        r = dades["r"]
+        r_pupil = dades["r_pupil"]
+        phase_error = dades["std_phase"]
+        m = int(dades["m"])    # Vortex order
+        misalign = dades["miss"]
+        cos_order = int(dades["l"])
         
         # Create input and output fields
         self.E_in = pr.crea_camp(npix, r, m, k_noise=phase_error, misalign=misalign,
@@ -64,7 +64,7 @@ class GeneradorParelles:
         self.E_out = pr.convoluciona(self.E_in, self.P)
 
         # Calculate intensities and plot
-        I = pr.captura_intensitat(self.E_out, dades[3], dades[4])
+        I = pr.captura_intensitat(self.E_out, dades["lam"], dades["sigma"])
         I_in = np.real(np.conj(self.E_in)*self.E_in)
         self.visualitzador.imshow(0, I_in)
         self.visualitzador.imshow(1, I)
