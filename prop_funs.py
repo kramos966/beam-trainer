@@ -14,7 +14,7 @@ osa_indexs = get_zernike_index()
 folder = "training_set"
 lamb = 525e-6   # mm, wavelength
 L =  2/lamb     # lambdas, half window width
-f = 200/lamb    # lambdas, focal length of the optical system
+f =  50/lamb    # lambdas, focal length of the optical system
 z =  0/lamb
 
 def crea_camp(npix, r, m, k_noise=2, cos_order=0, misalign=0):
