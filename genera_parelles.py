@@ -27,6 +27,7 @@ class GeneradorParelles:
     def __init__(self, master):
         self.master = master
         self.master.title("Generador Parelles")
+        self.master.protocol("WM_DELETE_WINDOW", self.tanca)
         # Create interface
         self.dades = PanellDades(self.master, command=self.calcula_series)
         self.visualitzador = Visualitzador(self.master, width=512, height=512)
@@ -143,10 +144,7 @@ class GeneradorParelles:
     def saveconfig(self, event=None, ask=True, name=None):
         """Save current values of the configuration into a JSON file."""
         joint_dict = dict()
-        zernikes = self.dades.get_zernikes()
-        dades = self.dades.get_beam()
-        joint_dict["beam_data"] = dades
-        joint_dict["zernikes"] = zernikes
+        joint_dict = self.dades.get_data()
         # Save finally the joint dictionary
         if ask:
             name = filedialog.asksaveasfilename(title="Save configuration file",
@@ -157,6 +155,14 @@ class GeneradorParelles:
             name = f"{name}.json"
         with open(name, "w") as savefile:
             json.dump(joint_dict, savefile, sort_keys=True, indent=4)
+
+    def tanca(self, event=None):
+        self.master.destroy()
+        try:
+            # Look for a process and close it
+            self.process.join()
+        except:
+            pass
 
 if __name__ == "__main__":
     root = tk.Tk()
