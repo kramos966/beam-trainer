@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
 import tkinter as tk
@@ -131,11 +130,11 @@ class EntradesFeix(tk.Frame):
         entry_pix.pack(anchor=tk.W)
         self.entries["npix"] = entry_pix
 
-        entry_r = myEntry(self, text="Beam Radius", default="0.05", width=8)
+        entry_r = myEntry(self, text="Beam Radius", default="0.1", width=8)
         entry_r.pack(anchor=tk.W)
         self.entries["r"] = entry_r
 
-        entry_pup = myEntry(self, text="Pupil radius", default="0.5", width=8)
+        entry_pup = myEntry(self, text="Pupil radius", default="0.2", width=8)
         entry_pup.pack(anchor=tk.W)
         self.entries["r_pupil"] = entry_pup
 

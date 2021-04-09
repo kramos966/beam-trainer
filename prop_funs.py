@@ -44,7 +44,7 @@ def crea_camp(npix, r, m, k_noise=2, cos_order=0, misalign=0):
         phi = np.arctan2(y, x)
         #E[:] = afegeix_bruticia(E, 2, niter=bruticia)
         E[:] = np.cos(cos_order*phi)*E
-    return E
+    return E/abs(E).max()
 
 def convoluciona(E, P):
     A = fft2(E)
@@ -59,19 +59,21 @@ def propagadors(npix):
     y, x = np.mgrid[-npix//2:npix//2, -npix//2:npix//2]
     umax = npix/4/L
     v = y/npix*umax*2
+    v[:] = fftshift(v)
     u = x/npix*umax*2
+    u[:] = fftshift(u)
     u2 = u*u+v*v
     xx = x/npix*L*2
     yy = y/npix*L*2
     H1 = np.exp(-1j*np.pi*f*u2)         # Prop lens plane
-    H1[:] = fftshift(H1)
+    #H1[:] = fftshift(H1)
     H2 = np.exp(-1j*np.pi*(f-z)*u2)     # Prop intermediate plane
-    H2[:] = fftshift(H2)
+    #H2[:] = fftshift(H2)
     H3 = np.exp(-1j*np.pi*z*u2)         # Prop detector plane
-    H3[:] = fftshift(H3)
+    #H3[:] = fftshift(H3)
     const = np.pi/f                     # Transmission factor lens
     t_lens = np.exp(-1j*const*(xx*xx+yy*yy))
-    return H1, H2, H3, t_lens
+    return H1, H2, H3, t_lens, v, u
 
 def propaga_os(E, P, t_lens, *tf):
     """Propagate the field E through an optical system using the
@@ -111,11 +113,17 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
     if aberracions:
         coeff_num = aberracions.keys()
     W = np.zeros((npix, npix), dtype=np.float_)
-    H1, H2, H3, t_lens = propagadors(npix)
+    H1, H2, H3, t_lens, v, u = propagadors(npix)
+    mask = rho < rp*rho.shape[0]
+    rho[:] = rho*mask
+    rho[:] = rho/rho.max()
     for i in range(nimatges):
-        r_i = np.random.rand()*r
+        r_i = (np.random.rand()+1e-3)*r
+        #r_i = r
         order = np.random.randint(cos_order+1)
-        E_in = crea_camp(npix, r_i, m, misalign=misalign, k_noise=phase_error,
+        m_vortex = np.random.randint(m+1)
+        #order = cos_order
+        E_in = crea_camp(npix, r_i, m_vortex, misalign=misalign, k_noise=phase_error,
                 cos_order=order)
         # Compute random wavefront aberration
         if aberracions:
@@ -123,9 +131,8 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
             for n_coeff in coeff_num:
                 # Maximum amplitude of the coefficient multiplied by the polynomial
                 A = aberracions[n_coeff]
-                (n, m) = osa_indexs[n_coeff]
-                W[:] += A*np.random.rand()*\
-                        zernike_p(rho, phi, n, m)
+                n, m = osa_indexs[n_coeff]
+                W[:] += A*np.random.rand()*zernike_p(rho, phi, n, m)
             P_ab = P*np.exp(1j*k*W)
         else:
             P_ab = P
@@ -135,13 +142,18 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
         #    E_out = propaga_os(E_in, P, t_lens, H1, H2, H3)
         #else:
         #    E_out = propaga_os(E_in, P, t_lens, H1, H2)
-        E_out = propaga_os(E_in, P, t_lens, H3)
-        phi_out = np.angle(E_out)
+        E_out = propaga_os(E_in, P_ab, t_lens, H3)
+        #phi_out = np.angle(E_out)
         I_out = captura_intensitat(E_out, max_photons, sigma)
 
+        # Compute the z component
+        Ek = fft2(E_out)
+        Ez = ifft2(Ek*u)
+        I_z = np.real(np.conj(Ez)*Ez)
+
         # Save data
-        path = os.path.join(folder, f"{i}.npz")
-        np.savez(path, intensity=np.floor(I_out), phase=phi_out)
+        path = os.path.join(folder, f"{i:08d}.npz")
+        np.savez(path, I_x=np.floor(I_out), I_z=I_z)
 
 def afegeix_bruticia(E, r_brut, niter=10):
     ny, nx = E.shape
@@ -196,6 +208,10 @@ def crea_pupila(npix, r, aberrations=None, work=False):
 def captura_intensitat(E, mean_photon, std_dark):
     I = np.real(np.conj(E)*E)
     Imax = I.max()
+    if np.isnan(Imax):
+        import matplotlib.pyplot as plt
+        plt.imshow(I)
+        plt.show()
     if Imax > 0:
         I[:] = I/I.max()*mean_photon
     dark_noise = np.random.normal(scale=std_dark, size=E.shape)

@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @author = Marcos Pérez
+# @author = Marcos PÃ©rez
 import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -74,7 +73,7 @@ class GeneradorParelles:
         self.E_in[:] = pr.afegeix_bruticia(self.E_in, 1, niter=10)
         self.P = pr.crea_pupila(npix, r_pupil, z_coeffs)
         #self.P[:] = afegeix_bruticia(self.P, 16, niter=bruticia)
-        H1, H2, H3, t_lens = pr.propagadors(npix)
+        H1, H2, H3, t_lens, v, u = pr.propagadors(npix)
         self.E_out = pr.propaga_os(self.E_in, self.P, t_lens, H3)
 
         # Calculate intensities and plot
