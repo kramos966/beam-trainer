@@ -143,6 +143,7 @@ def calcula_imatges(npix, r, rp, max_photons, sigma, phase_error,
         #else:
         #    E_out = propaga_os(E_in, P, t_lens, H1, H2)
         E_out = propaga_os(E_in, P_ab, t_lens, H3)
+        E_out /= abs(E_out).max()
         #phi_out = np.angle(E_out)
         I_out = captura_intensitat(E_out, max_photons, sigma)
 
